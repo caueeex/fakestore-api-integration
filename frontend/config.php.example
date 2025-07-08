@@ -1,0 +1,111 @@
+<?php
+/**
+ * Configuração do Frontend
+ * 
+ * Este arquivo contém as configurações básicas do frontend.
+ * Copie este arquivo para config.php e ajuste conforme necessário.
+ * 
+ * @author Cauê Sotero <soterocaue2@gmail.com>
+ * @version 1.0.0
+ */
+
+// Configurações do projeto
+$config = [
+    'project_name' => 'E-commerce FakeStore',
+    'project_version' => '1.0.0',
+    'project_description' => 'Integração com FakeStore API',
+    'author' => 'Cauê Sotero',
+    'email' => 'soterocaue2@gmail.com',
+    
+    // Configurações do backend
+    'backend_url' => 'http://localhost:3000',
+    'backend_timeout' => 30, // segundos
+    
+    // Configurações da interface
+    'max_products_selection' => 3,
+    'products_per_page' => 20,
+    
+    // Configurações de cache
+    'cache_enabled' => true,
+    'cache_duration' => 300, // 5 minutos
+    
+    // Configurações de debug
+    'debug_mode' => false,
+    'show_errors' => false,
+    
+    // Configurações de segurança
+    'csrf_protection' => true,
+    'rate_limiting' => true,
+    
+    // Configurações de API externa
+    'fakestore_api_url' => 'https://fakestoreapi.com',
+    'fakestore_timeout' => 10, // segundos
+];
+
+// Configurações de ambiente
+$environment = [
+    'development' => [
+        'debug_mode' => true,
+        'show_errors' => true,
+        'cache_enabled' => false,
+    ],
+    'production' => [
+        'debug_mode' => false,
+        'show_errors' => false,
+        'cache_enabled' => true,
+    ]
+];
+
+// Detectar ambiente
+$current_env = getenv('APP_ENV') ?: 'development';
+$env_config = $environment[$current_env] ?? $environment['development'];
+
+// Aplicar configurações de ambiente
+foreach ($env_config as $key => $value) {
+    if (isset($config[$key])) {
+        $config[$key] = $value;
+    }
+}
+
+// Configurações de erro
+if ($config['show_errors']) {
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+} else {
+    ini_set('display_errors', 0);
+    ini_set('display_startup_errors', 0);
+    error_reporting(0);
+}
+
+// Configurações de timezone
+date_default_timezone_set('America/Sao_Paulo');
+
+// Configurações de sessão
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+ini_set('session.cookie_secure', isset($_SERVER['HTTPS']));
+
+// Funções utilitárias
+function getConfig($key, $default = null) {
+    global $config;
+    return $config[$key] ?? $default;
+}
+
+function isDebugMode() {
+    return getConfig('debug_mode', false);
+}
+
+function getBackendUrl() {
+    return getConfig('backend_url', 'http://localhost:3000');
+}
+
+function getMaxProductsSelection() {
+    return getConfig('max_products_selection', 3);
+}
+
+// Log de debug
+if (isDebugMode()) {
+    error_log("Frontend configurado para ambiente: " . $current_env);
+}
+?> 
