@@ -264,7 +264,7 @@ async function addToCartWithRetry(payload, maxRetries = 3) {
 ### 1. Clone o Repositório
 
 ```bash
-git clone https://github.com/cauesotero/crpmango.git
+git clone https://github.com/caueeex/fakestore-api-integration.git
 cd crpmango
 ```
 
