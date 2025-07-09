@@ -290,10 +290,6 @@ cd frontend
 # Verificar se o PHP está instalado
 php --version
 
-# Criar arquivo de configuração (se necessário)
-cp config.php.example config.php
-```
-
 ## ▶️ Como Executar
 
 ### Opção 1: Desenvolvimento Local
