@@ -265,7 +265,7 @@ async function addToCartWithRetry(payload, maxRetries = 3) {
 
 ```bash
 git clone https://github.com/caueeex/fakestore-api-integration.git
-cd crpmango
+cd fakestore-api-integration-main
 ```
 
 ### 2. Configurar Backend
@@ -317,9 +317,10 @@ npm start
 #### 2. Configurar Frontend
 
 **Opção A: XAMPP (Recomendado)**
-1. Inicie o XAMPP Control Panel
-2. Clique em "Start" no Apache
-3. Acesse: http://localhost/crpmango/frontend/
+1. **Importante**: Se você baixou o projeto como ZIP, extraia a pasta `fakestore-api-integration-main` para dentro do diretório `htdocs` do XAMPP
+2. Inicie o XAMPP Control Panel
+3. Clique em "Start" no Apache
+4. Acesse: http://localhost/fakestore-api-integration-main/frontend/
 
 **Opção B: Servidor PHP Embutido**
 ```bash
@@ -329,7 +330,7 @@ php -S localhost:8000
 
 #### 3. Acessar Aplicação
 
-- **Frontend (XAMPP)**: http://localhost/crpmango/frontend/
+- **Frontend (XAMPP)**: http://localhost/fakestore-api-integration-main/frontend/
 - **Frontend (PHP Server)**: http://localhost:8000
 - **Backend API**: http://localhost:3000
 
@@ -440,7 +441,7 @@ Verifica o status do servidor.
 ## 📁 Estrutura do Projeto
 
 ```
-crpmango/
+fakestore-api-integration-main/
 ├── backend/
 │   ├── package.json          # Dependências Node.js
 │   ├── server.js             # Servidor Express
