@@ -47,21 +47,101 @@
     </div>
 
     <div class="container">
-        <div class="controls">
-            <button class="btn" id="loadProductsBtn" onclick="loadProducts()">
-                <i class="fas fa-box icon-md"></i>
-                Carregar Produtos
-            </button>
-            <button class="btn btn-secondary" id="addToCartBtn" onclick="addToCart()" disabled>
-                <i class="fas fa-cart-plus icon-md"></i>
-                Adicionar ao Carrinho
-            </button>
-            <?php if (!checkBackendStatus()): ?>
-                <div style="background: #fef3c7; color: #92400e; padding: 12px; border-radius: 8px; margin-top: 1rem;">
-                    <i class="fas fa-exclamation-triangle icon-md"></i>
-                    <strong>Atenção:</strong> O backend não está rodando. Execute o script start.bat primeiro.
+
+        <!-- Layout Principal com Sidebar -->
+        <div class="main-layout">
+            <!-- Sidebar de Filtros -->
+            <div class="filters-sidebar" id="filtersSidebar">
+                <div class="sidebar-header">
+                    <h3>
+                        <i class="fas fa-filter icon-sm"></i>
+                        Filtros
+                    </h3>
+                    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-            <?php endif; ?>
+                
+                <div class="sidebar-content">
+                    <div class="filter-section">
+                        <h4>
+                            <i class="fas fa-tags icon-sm"></i>
+                            Categoria
+                        </h4>
+                        <select id="categoryFilter" class="filter-select" onchange="applyFilters()">
+                            <option value="">Todas as categorias</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-section">
+                        <h4>
+                            <i class="fas fa-sort icon-sm"></i>
+                            Ordenar por Preço
+                        </h4>
+                        <select id="sortOrder" class="filter-select" onchange="applyFilters()">
+                            <option value="">Padrão</option>
+                            <option value="asc">Menor preço primeiro</option>
+                            <option value="desc">Maior preço primeiro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-section">
+                        <h4>
+                            <i class="fas fa-dollar-sign icon-sm"></i>
+                            Faixa de Preço
+                        </h4>
+                        <div class="price-range">
+                            <input type="range" id="priceRange" min="0" max="1000" value="1000" class="price-slider" oninput="updatePriceRange()">
+                            <div class="price-labels">
+                                <span>R$ 0</span>
+                                <span id="priceValue">R$ 1000</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-actions">
+                        <button class="btn btn-outline" onclick="clearFilters()">
+                            <i class="fas fa-times icon-sm"></i>
+                            Limpar Filtros
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Conteúdo Principal -->
+            <div class="main-content">
+                <!-- Botão para abrir sidebar em mobile -->
+                <div class="mobile-filters-toggle" id="mobileFiltersToggle">
+                    <button class="btn btn-outline" onclick="toggleSidebar()">
+                        <i class="fas fa-filter icon-sm"></i>
+                        Filtros
+                    </button>
+                </div>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Carregando produtos...</p>
+                </div>
+
+                <div class="stats" id="stats" style="display: none;">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalProducts">0</div>
+                        <div class="stat-label">Total de Produtos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalCategories">0</div>
+                        <div class="stat-label">Categorias</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="avgPrice">R$ 0</div>
+                        <div class="stat-label">Preço Médio</div>
+                    </div>
+                </div>
+
+                <div class="products-grid" id="productsGrid"></div>
+
+                <div class="result" id="result"></div>
+            </div>
         </div>
 
         <div class="loading" id="loading">
@@ -91,6 +171,9 @@
 
     <!-- Overlay do Carrinho -->
     <div class="cart-overlay" id="cartOverlay" onclick="closeCartSidebar()"></div>
+
+    <!-- Overlay dos Filtros -->
+    <div class="filters-overlay" id="filtersOverlay" onclick="toggleSidebar()"></div>
 
     <!-- Sidebar do Carrinho -->
     <div class="cart-sidebar" id="cartSidebar">
@@ -162,12 +245,10 @@
         let filteredProducts = [];
 
         async function loadProducts() {
-            const btn = document.getElementById('loadProductsBtn');
             const loading = document.getElementById('loading');
             const productsGrid = document.getElementById('productsGrid');
             const stats = document.getElementById('stats');
 
-            btn.disabled = true;
             loading.style.display = 'block';
             productsGrid.innerHTML = '';
 
@@ -182,6 +263,9 @@
                     displayProducts(filteredProducts);
                     displayStats(filteredProducts);
                     updateCartCounter(); // Inicializar contador
+                    
+                    // Inicializar filtros
+                    initializeFilters();
                 } else {
                     showError(data);
                 }
@@ -192,24 +276,125 @@
                     details: error.message
                 });
             } finally {
-                btn.disabled = false;
                 loading.style.display = 'none';
             }
         }
 
+        function initializeFilters() {
+            const categoryFilter = document.getElementById('categoryFilter');
+            
+            // Obter categorias únicas
+            const categories = [...new Set(products.map(p => p.category))].sort();
+            
+            // Limpar opções existentes (exceto a primeira)
+            categoryFilter.innerHTML = '<option value="">Todas as categorias</option>';
+            
+            // Adicionar opções de categoria
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+                categoryFilter.appendChild(option);
+            });
+        }
+
+        function applyFilters() {
+            const categoryFilter = document.getElementById('categoryFilter');
+            const sortOrder = document.getElementById('sortOrder');
+            const priceRange = document.getElementById('priceRange');
+            
+            let filtered = [...products];
+            
+            // Aplicar filtro de categoria
+            if (categoryFilter.value) {
+                filtered = filtered.filter(product => product.category === categoryFilter.value);
+            }
+            
+            // Aplicar filtro de preço
+            const maxPrice = parseFloat(priceRange.value);
+            filtered = filtered.filter(product => product.price <= maxPrice);
+            
+            // Aplicar ordenação
+            if (sortOrder.value) {
+                filtered.sort((a, b) => {
+                    if (sortOrder.value === 'asc') {
+                        return a.price - b.price;
+                    } else {
+                        return b.price - a.price;
+                    }
+                });
+            }
+            
+            filteredProducts = filtered;
+            displayProducts(filteredProducts);
+            displayStats(filteredProducts);
+        }
+
+        function clearFilters() {
+            const categoryFilter = document.getElementById('categoryFilter');
+            const sortOrder = document.getElementById('sortOrder');
+            const priceRange = document.getElementById('priceRange');
+            
+            // Resetar filtros
+            categoryFilter.value = '';
+            sortOrder.value = '';
+            priceRange.value = 1000;
+            document.getElementById('priceValue').textContent = 'R$ 1000';
+            
+            // Aplicar filtros limpos
+            filteredProducts = [...products];
+            displayProducts(filteredProducts);
+            displayStats(filteredProducts);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('filtersSidebar');
+            const overlay = document.getElementById('filtersOverlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('open');
+        }
+
+        function updatePriceRange() {
+            const priceRange = document.getElementById('priceRange');
+            const priceValue = document.getElementById('priceValue');
+            priceValue.textContent = `R$ ${priceRange.value}`;
+            applyFilters();
+        }
+
         function searchProducts(query) {
             if (!query.trim()) {
-                filteredProducts = [...products];
+                // Se não há busca, aplicar apenas os filtros ativos
+                applyFilters();
             } else {
                 const searchTerm = query.toLowerCase();
-                filteredProducts = products.filter(product => 
+                let searchResults = products.filter(product => 
                     product.title.toLowerCase().includes(searchTerm) ||
                     product.description.toLowerCase().includes(searchTerm) ||
                     product.category.toLowerCase().includes(searchTerm)
                 );
+                
+                // Aplicar filtros de categoria e ordenação aos resultados da busca
+                const categoryFilter = document.getElementById('categoryFilter');
+                const sortOrder = document.getElementById('sortOrder');
+                
+                if (categoryFilter.value) {
+                    searchResults = searchResults.filter(product => product.category === categoryFilter.value);
+                }
+                
+                if (sortOrder.value) {
+                    searchResults.sort((a, b) => {
+                        if (sortOrder.value === 'asc') {
+                            return a.price - b.price;
+                        } else {
+                            return b.price - a.price;
+                        }
+                    });
+                }
+                
+                filteredProducts = searchResults;
+                displayProducts(filteredProducts);
+                displayStats(filteredProducts);
             }
-            displayProducts(filteredProducts);
-            displayStats(filteredProducts);
         }
 
         function displayProducts(productsToShow) {
@@ -320,34 +505,32 @@
         }
 
         async function addToCart() {
-                            if (selectedProducts.length === 0) {
-                    // Mostrar mensagem mais amigável
-                    const result = document.getElementById('result');
-                    result.innerHTML = `
-                        <div class="error">
-                            <h3>
-                                <i class="fas fa-shopping-cart icon-lg"></i>
-                                Carrinho Vazio
-                            </h3>
-                            <p><strong>Nenhum produto selecionado!</strong></p>
-                            <p>Selecione pelo menos um produto para adicionar ao carrinho.</p>
-                        </div>
-                    `;
-                    result.style.display = 'block';
-                    return;
-                }
+            if (selectedProducts.length === 0) {
+                // Mostrar mensagem mais amigável
+                const result = document.getElementById('result');
+                result.innerHTML = `
+                    <div class="error">
+                        <h3>
+                            <i class="fas fa-shopping-cart icon-lg"></i>
+                            Carrinho Vazio
+                        </h3>
+                        <p><strong>Nenhum produto selecionado!</strong></p>
+                        <p>Selecione pelo menos um produto para adicionar ao carrinho.</p>
+                    </div>
+                `;
+                result.style.display = 'block';
+                return;
+            }
 
-                const btn = document.getElementById('addToCartBtn');
             const cartBtn = document.getElementById('cartBtn');
             const sidebarCheckoutBtn = document.getElementById('sidebarCheckoutBtn');
-                const loading = document.getElementById('loading');
-                const result = document.getElementById('result');
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
 
-                btn.disabled = true;
             cartBtn.disabled = true;
             sidebarCheckoutBtn.disabled = true;
-                loading.style.display = 'block';
-                result.style.display = 'none';
+            loading.style.display = 'block';
+            result.style.display = 'none';
 
                 try {
                     const backendUrl = '<?php echo getBackendUrl("/api/add-to-cart"); ?>';
@@ -380,7 +563,6 @@
                     details: error.message
                 });
             } finally {
-                btn.disabled = false;
                 cartBtn.disabled = false;
                 sidebarCheckoutBtn.disabled = false;
                 loading.style.display = 'none';
@@ -549,7 +731,6 @@
         function updateCartCounter() {
             const cartCounter = document.getElementById('cartCounter');
             const sidebarCartCounter = document.getElementById('sidebarCartCounter');
-            const addToCartBtn = document.getElementById('addToCartBtn');
             const cartBtn = document.getElementById('cartBtn');
             
             if (selectedProducts.length > 0) {
@@ -557,20 +738,16 @@
                 sidebarCartCounter.style.display = 'inline-block';
                 cartCounter.textContent = selectedProducts.length;
                 sidebarCartCounter.textContent = selectedProducts.length;
-                addToCartBtn.disabled = false;
                 cartBtn.disabled = false;
             } else {
                 cartCounter.style.display = 'none';
                 sidebarCartCounter.style.display = 'none';
-                addToCartBtn.disabled = true;
                 cartBtn.disabled = false;
             }
         }
 
-        // Carregar produtos automaticamente se o backend estiver rodando
-        if (<?php echo checkBackendStatus() ? 'true' : 'false'; ?>) {
-            loadProducts();
-        }
+        // Carregar produtos automaticamente
+        loadProducts();
 
         // Adicionar evento de clique alternativo para o botão do carrinho
         document.addEventListener('DOMContentLoaded', function() {

@@ -54,6 +54,10 @@ Uma aplicação e-commerce completa que integra com a FakeStore API para simular
 ![Confirmação de Compra](confirmacao-compra.PNG)
 *Modal de confirmação após adicionar produtos ao carrinho com sucesso*
 
+### Filtro Lateral (Sidebar)
+![Filtro Lateral](filtro.PNG)
+*Exemplo do filtro lateral moderno e funcional, com opções de categoria, ordenação e faixa de preço*
+
 ## 🔄 Fluxo de Funcionamento
 
 ### 1. Fluxo Principal - Adicionar ao Carrinho
