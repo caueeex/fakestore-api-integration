@@ -265,7 +265,7 @@ async function addToCartWithRetry(payload, maxRetries = 3) {
 
 ```bash
 git clone https://github.com/caueeex/fakestore-api-integration.git
-cd crpmango
+cd fakestore-api-integration-main
 ```
 
 ### 2. Configurar Backend
@@ -289,10 +289,6 @@ cd frontend
 
 # Verificar se o PHP está instalado
 php --version
-
-# Criar arquivo de configuração (se necessário)
-cp config.php.example config.php
-```
 
 ## ▶️ Como Executar
 
