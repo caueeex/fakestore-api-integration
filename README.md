@@ -36,6 +36,24 @@ Uma aplicação e-commerce completa que integra com a FakeStore API para simular
 └─────────────────┘                 └─────────────────┘                 └─────────────────┘
 ```
 
+## 🖼️ Demonstração Visual do Sistema
+
+### Interface Principal - Lista de Produtos
+![Interface Principal](design-inicial.PNG)
+*Tela inicial mostrando a interface moderna e responsiva com lista de produtos da FakeStore API*
+
+### Seleção de Produtos
+![Seleção de Produtos](produtos.PNG)
+*Interface para seleção de produtos específicos com validação de quantidade máxima*
+
+### Carrinho de Compras
+![Carrinho de Compras](carrinho.PNG)
+*Visualização do carrinho com produtos selecionados e informações detalhadas*
+
+### Confirmação de Compra
+![Confirmação de Compra](confirmacao-compra.PNG)
+*Modal de confirmação após adicionar produtos ao carrinho com sucesso*
+
 ## 🔄 Fluxo de Funcionamento
 
 ### 1. Fluxo Principal - Adicionar ao Carrinho
