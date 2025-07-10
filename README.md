@@ -24,14 +24,6 @@ Uma aplicação e-commerce completa que integra com a FakeStore API para simular
 - [Contribuição](#contribuição)
 - [Atualizações Recentes](#atualizações-recentes)
 
-## 🆕 Atualizações Recentes
-
-### v2.0 - Expansão de Produtos (Janeiro 2025)
-- ✅ **Aumento de Produtos**: De 3 para **20 produtos** carregados da FakeStore API
-- ✅ **Melhor Experiência**: Interface mais rica com mais opções de produtos
-- ✅ **Filtros Aprimorados**: Funcionalidade de filtro e busca otimizada para 20 produtos
-- ✅ **Compatibilidade**: Mantém todas as funcionalidades existentes
-
 ### Funcionalidades Atuais
 - 🛍️ **20 produtos** disponíveis para visualização
 - 🛒 **10 produtos** máximo no carrinho
