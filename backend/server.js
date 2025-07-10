@@ -18,6 +18,15 @@ function getCurrentDate() {
     return `${year}-${month}-${day}`;
 }
 
+// Função para obter os primeiros 20 produtos
+function getFirstTwentyProducts(allProducts) {
+    const firstTwenty = allProducts.slice(0, 20);
+    if (firstTwenty.length === 0) {
+        throw new Error('Nenhum produto encontrado');
+    }
+    return firstTwenty;
+}
+
 // Função para montar o payload do carrinho
 function buildCartPayload(products) {
     const cartProducts = products.map(product => ({
@@ -45,7 +54,7 @@ app.post('/api/add-to-cart', async (req, res) => {
             console.log(`📦 ${products.length} produtos recebidos no body da requisição`);
             productsToAdd = products;
         } else {
-            // Caso contrário, buscar produtos da API e pegar os 3 primeiros
+            // Caso contrário, buscar produtos da API e pegar os primeiros 20
             console.log('📡 Fazendo requisição GET para https://fakestoreapi.com/products...');
             const productsResponse = await axios.get('https://fakestoreapi.com/products');
             
@@ -55,11 +64,11 @@ app.post('/api/add-to-cart', async (req, res) => {
 
             console.log(`✅ ${productsResponse.data.length} produtos obtidos com sucesso`);
 
-            // Pegar os 3 primeiros produtos
-            const firstThreeProducts = productsResponse.data.slice(0, 3);
-            console.log('📦 Produtos selecionados:', firstThreeProducts.map(p => ({ id: p.id, title: p.title })));
+            // Filtrar apenas os primeiros 20 produtos
+            const firstTwentyProducts = getFirstTwentyProducts(productsResponse.data);
+            console.log('📦 Produtos selecionados (primeiros 20):', firstTwentyProducts.map(p => ({ id: p.id, title: p.title })));
             
-            productsToAdd = firstThreeProducts.map(product => ({
+            productsToAdd = firstTwentyProducts.map(product => ({
                 productId: product.id,
                 quantity: 1
             }));
@@ -97,10 +106,10 @@ app.post('/api/add-to-cart', async (req, res) => {
                 } : { id: p.id, title: 'Produto não encontrado', price: 0 };
             });
         } else {
-            // Usar os 3 primeiros produtos
+            // Usar os primeiros 20 produtos
             const productsResponse = await axios.get('https://fakestoreapi.com/products');
-            const firstThreeProducts = productsResponse.data.slice(0, 3);
-            productsInfo = firstThreeProducts.map(p => ({
+            const firstTwentyProducts = getFirstTwentyProducts(productsResponse.data);
+            productsInfo = firstTwentyProducts.map(p => ({
                 id: p.id,
                 title: p.title,
                 price: p.price
@@ -158,8 +167,12 @@ app.get('/api/products', async (req, res) => {
 
         console.log(`✅ ${productsResponse.data.length} produtos obtidos com sucesso`);
 
+        // Filtrar apenas os primeiros 20 produtos
+        const firstTwentyProducts = getFirstTwentyProducts(productsResponse.data);
+        console.log('📦 Retornando os primeiros 20 produtos:', firstTwentyProducts.map(p => ({ id: p.id, title: p.title })));
+
         // Retornar produtos formatados
-        const formattedProducts = productsResponse.data.map(product => ({
+        const formattedProducts = firstTwentyProducts.map(product => ({
             id: product.id,
             title: product.title,
             price: product.price,
@@ -171,7 +184,7 @@ app.get('/api/products', async (req, res) => {
 
         res.json({
             success: true,
-            message: 'Produtos obtidos com sucesso!',
+            message: 'Produtos obtidos com sucesso! (Primeiros 20 produtos)',
             products: formattedProducts,
             total: formattedProducts.length
         });

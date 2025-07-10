@@ -438,7 +438,7 @@
                                     <i class="fas fa-trash icon-sm"></i>
                                     Remover
                                 </button>` :
-                                `<button class="btn-add-to-cart" onclick="addToCartIndividual(${product.id})" ${selectedProducts.length >= 3 ? 'disabled' : ''}>
+                                `<button class="btn-add-to-cart" onclick="addToCartIndividual(${product.id})" ${selectedProducts.length >= 10 ? 'disabled' : ''}>
                                     <i class="fas fa-cart-plus icon-sm"></i>
                                     Adicionar
                                 </button>`
@@ -462,8 +462,8 @@
         }
 
         function addToCartIndividual(productId) {
-            if (selectedProducts.length >= 3) {
-                alert('Máximo de 3 produtos permitidos!');
+            if (selectedProducts.length >= 10) {
+                alert('Máximo de 10 produtos permitidos!');
                 return;
             }
 
