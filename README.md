@@ -5,7 +5,7 @@
 [![Express](https://img.shields.io/badge/Express-4.18.2-red.svg)](https://expressjs.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Uma aplicação e-commerce completa que integra com a FakeStore API para simular o processo de adicionar produtos ao carrinho de compras. O projeto utiliza uma arquitetura frontend-backend com PHP para interface e Node.js para processamento de dados.
+Uma aplicação e-commerce completa que integra com a FakeStore API para simular o processo de adicionar produtos ao carrinho de compras. O projeto utiliza uma arquitetura frontend-backend com PHP para interface e Node.js para processamento de dados. **Atualmente carrega os primeiros 20 produtos da API**
 
 **Desenvolvido por:** Cauê Sotero  
 **Email:** soterocaue2@gmail.com  
@@ -22,6 +22,22 @@ Uma aplicação e-commerce completa que integra com a FakeStore API para simular
 - [Estrutura do Projeto](#estrutura-do-projeto)
 - [Tecnologias Utilizadas](#tecnologias-utilizadas)
 - [Contribuição](#contribuição)
+- [Atualizações Recentes](#atualizações-recentes)
+
+## 🆕 Atualizações Recentes
+
+### v2.0 - Expansão de Produtos (Janeiro 2025)
+- ✅ **Aumento de Produtos**: De 3 para **20 produtos** carregados da FakeStore API
+- ✅ **Melhor Experiência**: Interface mais rica com mais opções de produtos
+- ✅ **Filtros Aprimorados**: Funcionalidade de filtro e busca otimizada para 20 produtos
+- ✅ **Compatibilidade**: Mantém todas as funcionalidades existentes
+
+### Funcionalidades Atuais
+- 🛍️ **20 produtos** disponíveis para visualização
+- 🛒 **10 produtos** máximo no carrinho
+- 🔍 **Filtros avançados** por categoria, preço e ordenação
+- 📱 **Interface responsiva** e moderna
+- ⚡ **Integração completa** com FakeStore API
 
 ## 🏗️ Arquitetura do Sistema
 
@@ -73,7 +89,7 @@ sequenceDiagram
     F->>B: POST /api/add-to-cart
     B->>A: GET /products
     A-->>B: Lista de produtos
-    B->>B: Seleciona 3 primeiros produtos
+    B->>B: Seleciona primeiros 20 produtos
     B->>B: Monta payload do carrinho
     B->>A: POST /carts
     A-->>B: Carrinho criado
@@ -114,9 +130,9 @@ async function addToCart(req, res) {
             // 2. Buscar produtos da API externa
             const productsResponse = await axios.get('https://fakestoreapi.com/products');
             
-            // 3. Selecionar os 3 primeiros produtos
-            const firstThreeProducts = productsResponse.data.slice(0, 3);
-            productsToAdd = firstThreeProducts.map(product => ({
+            // 3. Selecionar os primeiros 20 produtos
+            const firstTwentyProducts = productsResponse.data.slice(0, 20);
+            productsToAdd = firstTwentyProducts.map(product => ({
                 productId: product.id,
                 quantity: 1
             }));
@@ -167,9 +183,9 @@ class EcommerceInterface {
     }
     
     function addToCart($selectedProducts) {
-        // 1. Validar seleção (máximo 3 produtos)
-        if (count($selectedProducts) > 3) {
-            showError('Máximo de 3 produtos permitidos');
+        // 1. Validar seleção (máximo 10 produtos)
+        if (count($selectedProducts) > 10) {
+            showError('Máximo de 10 produtos permitidos');
             return;
         }
         
@@ -380,7 +396,7 @@ Busca todos os produtos da FakeStore API.
 ```json
 {
   "success": true,
-  "message": "Produtos obtidos com sucesso!",
+  "message": "Produtos obtidos com sucesso! (Primeiros 20 produtos)",
   "products": [
     {
       "id": 1,
@@ -459,16 +475,18 @@ Verifica o status do servidor.
 ## 📁 Estrutura do Projeto
 
 ```
-fakestore-api-integration-main/
+crpmango/
 ├── backend/
 │   ├── package.json          # Dependências Node.js
-│   ├── server.js             # Servidor Express
+│   ├── server.js             # Servidor Express (20 produtos)
 │   └── node_modules/         # Dependências instaladas
 ├── frontend/
-│   ├── index.php             # Interface principal
-│   ├── config.php            # Configurações
-│   └── css/
-│       └── style.css         # Estilos CSS
+│   ├── index.php             # Interface principal (10 produtos no carrinho)
+│   ├── config.php.example    # Configurações de exemplo
+│   ├── css/
+│   │   └── style.css         # Estilos CSS modernos
+│   └── js/
+│       └── app.js            # JavaScript da aplicação
 ├── scripts/
 │   ├── start.bat             # Iniciar aplicação (Windows)
 │   ├── start.sh              # Iniciar aplicação (Linux/Mac)
@@ -479,9 +497,11 @@ fakestore-api-integration-main/
 │   ├── test.bat              # Executar testes (Windows)
 │   ├── test.sh               # Executar testes (Linux/Mac)
 │   └── README.md             # Documentação dos scripts
+├── *.PNG                     # Screenshots da aplicação
 ├── README.md                 # Este arquivo
 ├── TESTING.md                # Guia de testes
-└── .gitignore               # Arquivos ignorados pelo Git
+├── XAMPP-SETUP.md           # Configuração do XAMPP
+└── test-integration.js       # Testes de integração
 ```
 
 ## 🛠️ Tecnologias Utilizadas
@@ -503,9 +523,36 @@ fakestore-api-integration-main/
 ### APIs Externas
 - **FakeStore API**: API de produtos e carrinhos
 
-## 🧪 Testes
+## ⚙️ Limitações e Configurações
 
-### Testes Manuais
+### Configurações Atuais
+- **Produtos Carregados**: 20 produtos da FakeStore API
+- **Limite do Carrinho**: 10 produtos por carrinho
+- **Filtros Disponíveis**: Categoria, ordenação por preço, faixa de preço
+- **Busca**: Por título, descrição e categoria
+
+### Como Modificar Limites
+Para alterar a quantidade de produtos ou limite do carrinho:
+
+#### Backend (Quantidade de Produtos)
+```javascript
+// Em backend/server.js, linha ~25
+function getFirstTwentyProducts(allProducts) {
+    const firstTwenty = allProducts.slice(0, 20); // Altere o número 20
+    // ...
+}
+```
+
+#### Frontend (Limite do Carrinho)
+```javascript
+// Em frontend/index.php, linha ~464
+if (selectedProducts.length >= 10) { // Altere o número 10
+    alert('Máximo de 10 produtos permitidos!');
+    return;
+}
+```
+
+## 🧪 Testes
 
 1. **Teste de Conexão**
    ```bash
